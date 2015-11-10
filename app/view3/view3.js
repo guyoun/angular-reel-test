@@ -29,7 +29,7 @@ angular.module('myApp.view3').directive('angularReel', ['$timeout',
       }
     };
   }
-])
+]);
 
 
 .controller('View3Ctrl', ['$scope', function($scope) {
