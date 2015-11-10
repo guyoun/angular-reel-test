@@ -4,6 +4,8 @@
 angular.module('myApp', [
   'ngRoute',
   'myApp.view1',
+  'myApp.view2',
+  'angular-images-loaded', //for view2
   'myApp.version'
 ]).
 config(['$routeProvider', function($routeProvider) {
