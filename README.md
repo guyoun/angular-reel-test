@@ -1,3 +1,8 @@
+# jquery.reel.js 테스트 프로젝트
+- 프로젝트는 webstorm의 AngularJS 프로젝를 기본으로 사용
+
+---
+
 # angular-seed — the seed for AngularJS apps
 
 This project is an application skeleton for a typical [AngularJS](http://angularjs.org/) web app.
