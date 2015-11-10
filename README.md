@@ -1,5 +1,7 @@
-# jquery.reel.js 테스트 프로젝트
-- 프로젝트는 webstorm의 AngularJS 프로젝를 기본으로 사용
+# angular app 기반의 코드 테스트를 위한 프로젝트
+- jquery.reel.js 테스트 추가
+- angular-images-loaded 테스트 추가
+
 
 ---
 
