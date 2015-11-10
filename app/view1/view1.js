@@ -11,61 +11,61 @@ angular.module('myApp.view1', ['ngRoute'])
 
 .controller('View1Ctrl', ['$scope', '$timeout', function($scope, $timeout) {
   $('#image-fish').reel({
-    images:      '/angular-reel-test/app/view1/fish/DSCN####.JPG|691..702'
+    images:      '/test-angular-app/app/view1/fish/DSCN####.JPG|691..702'
   });
 
   //shoe 사진 테스트(magic 360)
   //$('#image-shoe').reel({
-  //  images:      '/angular-reel-test/app/view1/shoe/shoe-360-##.JPG|01..36'
+  //  images:      '/test-angular-app/app/view1/shoe/shoe-360-##.JPG|01..36'
   //});
 
   var items = [{
-      'image':'/angular-reel-test/app/view1/fish/DSCN0691.JPG',
-      'images': '/angular-reel-test/app/view1/fish/DSCN####.JPG|691..702'
+      'image':'/test-angular-app/app/view1/fish/DSCN0691.JPG',
+      'images': '/test-angular-app/app/view1/fish/DSCN####.JPG|691..702'
     },
     {
-      'image':'/angular-reel-test/app/view1/fish/DSCN0691.JPG',
-      'images': '/angular-reel-test/app/view1/fish/DSCN####.JPG|691..702'
+      'image':'/test-angular-app/app/view1/fish/DSCN0691.JPG',
+      'images': '/test-angular-app/app/view1/fish/DSCN####.JPG|691..702'
     },
     {
-      'image':'/angular-reel-test/app/view1/fish/DSCN0691.JPG',
-      'images': '/angular-reel-test/app/view1/fish/DSCN####.JPG|691..702'
+      'image':'/test-angular-app/app/view1/fish/DSCN0691.JPG',
+      'images': '/test-angular-app/app/view1/fish/DSCN####.JPG|691..702'
     },
     {
-      'image':'/angular-reel-test/app/view1/fish/DSCN0691.JPG',
-      'images': '/angular-reel-test/app/view1/fish/DSCN####.JPG|691..702'
+      'image':'/test-angular-app/app/view1/fish/DSCN0691.JPG',
+      'images': '/test-angular-app/app/view1/fish/DSCN####.JPG|691..702'
     },
     {
-      'image':'/angular-reel-test/app/view1/fish/DSCN0691.JPG',
-      'images': '/angular-reel-test/app/view1/fish/DSCN####.JPG|691..702'
+      'image':'/test-angular-app/app/view1/fish/DSCN0691.JPG',
+      'images': '/test-angular-app/app/view1/fish/DSCN####.JPG|691..702'
     },
     {
-      'image':'/angular-reel-test/app/view1/fish/DSCN0691.JPG',
-      'images': '/angular-reel-test/app/view1/fish/DSCN####.JPG|691..702'
+      'image':'/test-angular-app/app/view1/fish/DSCN0691.JPG',
+      'images': '/test-angular-app/app/view1/fish/DSCN####.JPG|691..702'
     },
     {
-      'image':'/angular-reel-test/app/view1/fish/DSCN0691.JPG',
-      'images': '/angular-reel-test/app/view1/fish/DSCN####.JPG|691..702'
+      'image':'/test-angular-app/app/view1/fish/DSCN0691.JPG',
+      'images': '/test-angular-app/app/view1/fish/DSCN####.JPG|691..702'
     },
     {
-      'image':'/angular-reel-test/app/view1/fish/DSCN0691.JPG',
-      'images': '/angular-reel-test/app/view1/fish/DSCN####.JPG|691..702'
+      'image':'/test-angular-app/app/view1/fish/DSCN0691.JPG',
+      'images': '/test-angular-app/app/view1/fish/DSCN####.JPG|691..702'
     },
     {
-      'image':'/angular-reel-test/app/view1/fish/DSCN0691.JPG',
-      'images': '/angular-reel-test/app/view1/fish/DSCN####.JPG|691..702'
+      'image':'/test-angular-app/app/view1/fish/DSCN0691.JPG',
+      'images': '/test-angular-app/app/view1/fish/DSCN####.JPG|691..702'
     },
     {
-      'image':'/angular-reel-test/app/view1/fish/DSCN0691.JPG',
-      'images': '/angular-reel-test/app/view1/fish/DSCN####.JPG|691..702'
+      'image':'/test-angular-app/app/view1/fish/DSCN0691.JPG',
+      'images': '/test-angular-app/app/view1/fish/DSCN####.JPG|691..702'
     },
     {
-      'image':'/angular-reel-test/app/view1/fish/DSCN0691.JPG',
-      'images': '/angular-reel-test/app/view1/fish/DSCN####.JPG|691..702'
+      'image':'/test-angular-app/app/view1/fish/DSCN0691.JPG',
+      'images': '/test-angular-app/app/view1/fish/DSCN####.JPG|691..702'
     },
     {
-      'image':'/angular-reel-test/app/view1/fish/DSCN0691.JPG',
-      'images': '/angular-reel-test/app/view1/fish/DSCN####.JPG|691..702'
+      'image':'/test-angular-app/app/view1/fish/DSCN0691.JPG',
+      'images': '/test-angular-app/app/view1/fish/DSCN####.JPG|691..702'
     }];
     $scope.items = items;
 
