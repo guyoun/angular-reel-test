@@ -1,0 +1,25 @@
+<p>This is the partial for view 3.</p>
+
+<h3>Using angualr-images-loaded</h3>
+<div class="row">
+    <div class="col-md-12" images-loaded="imgLoadedEvents">
+        <div class="col-md-3" ng-repeat="item in items">
+            <p>
+                <img id="image-{{$index}}" ng-src="{{item.image}}"/>
+                <br/>
+            </p>
+        </div>
+    </div>
+</div>
+
+<h3>Using angualr-reel directive</h3>
+<div class="row">
+    <div class="col-md-12">
+        <div class="col-md-3" ng-repeat="item in items">
+            <p>
+                <img id="image-{{$index}}" ng-src="{{item.image}}" reel-images="{{item.images}}" angular-reel/>
+                <br/>
+            </p>
+        </div>
+    </div>
+</div>
