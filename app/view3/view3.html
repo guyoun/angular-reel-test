@@ -13,13 +13,21 @@
 </div>
 
 <h3>Using angualr-reel directive</h3>
+
+<style>
+.magnify {
+    position: relative;
+    display: block;
+}
+</style>
+
 <div class="row">
     <div class="col-md-12">
-        <div class="col-md-3" ng-repeat="item in items">
-            <p>
-                <img id="image-{{$index}}" ng-src="{{item.image}}" reel-images="{{item.images}}" angular-reel/>
-                <br/>
-            </p>
+        <div class="col-md-3" ng-repeat="item in items" ng-init="item.reel_control={}">
+            <div angular-reel id="$index" images="item.images" image="item.image" use-magnify='true' control="item.reel_control"></div>
+
+            <!--<button ng-click="item.reel_control.change_mode('normal')">normal</button>-->
+            <!--<button ng-click="item.reel_control.change_mode('large')">large</button>-->
         </div>
     </div>
 </div>
