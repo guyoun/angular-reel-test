@@ -8,7 +8,7 @@ angular.module('myApp.view1', ['ngRoute'])
     controller: 'View1Ctrl'
   });
 }])
-
+    
 .controller('View1Ctrl', ['$scope', '$timeout', function($scope, $timeout) {
   $('#image-fish').reel({
     images:      '/test-angular-app/app/view1/fish/DSCN####.JPG|691..702'

@@ -1,0 +1,32 @@
+<div class="row">
+    <div class="container">
+        <h2 class="">Raphaeljs example</h2>
+
+        <style>
+            #canvas > * {
+                border: solid 1px black;
+            }
+        </style>
+
+        <div id="canvas"></div>
+
+        <div class="col-sm-12">
+            <div class="col-sm-3">
+                <h5>To front</h5>
+
+                <button  ng-click="click_button('red')">Red</button>
+                <button  ng-click="click_button('blue')">blue</button>
+                <button  ng-click="click_button('green')">green</button>
+            </div>
+
+
+            <div class="col-sm-3">
+                <h5>To back</h5>
+
+                <button  ng-click="click_button('red', 'back')">Red</button>
+                <button  ng-click="click_button('blue', 'back')">blue</button>
+                <button  ng-click="click_button('green', 'back')">green</button>
+            </div>
+        </div>
+    </div>
+</div>
