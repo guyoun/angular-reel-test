@@ -12,7 +12,8 @@
     "angular-mocks": "~1.4.0",
     "html5-boilerplate": "~5.2.0",
     "magnify": "~1.3.1",
-    "raphael": "~2.2.0"
+    "raphael": "~2.2.0",
+    "three": "*"
   },
   "devDependencies": {
     "angular-images-loaded": "~0.0.8"
