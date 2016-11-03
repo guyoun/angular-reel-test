@@ -8,6 +8,7 @@ angular.module('myApp', [
   'myApp.view3',
   'myApp.view4',
   'myApp.view5',
+  'myApp.view6',
   'angular-images-loaded', //for view2
   'myApp.version'
 ])
