@@ -8,7 +8,7 @@ angular.module('myApp.view5', ['ngRoute'])
         });
     }])
     .controller('View5Ctrl', ['$scope', '$log', function ($scope, $log) {
-        function ThreeJS() {
+        function ThreeJS(configs) {
             var threejs = {};
             var container, scene, renderer, camera;
             threejs.elements = {}; //render, object
@@ -30,17 +30,36 @@ angular.module('myApp.view5', ['ngRoute'])
             threejs.init = function () {
                 $log.debug('init');
 
+                var width = configs['size']['width'] || window.innerWidth;
+                var height = configs['size']['height'] || window.innerHeight;
+
                 container = document.getElementById('threejs-canvas');
                 scene = new THREE.Scene(); // Create a Three.js scene object.
 
                 renderer = window.WebGLRenderingContext ? new THREE.WebGLRenderer() : new THREE.CanvasRenderer(); // Fallback to canvas renderer, if necessary.
-                renderer.setSize(window.innerWidth, window.innerHeight); // Set the size of the WebGL viewport.
+                renderer.setSize(width, height); // Set the size of the WebGL viewport.
                 container.appendChild(renderer.domElement); // Append the WebGL viewport to the DOM.
 
                 camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000); // Define the perspective camera's attributes.
-                camera.position.z = 50; // Move the camera away from the origin, down the positive z-axis.
+
+                if(configs['camera']){
+                    $log.debug(configs);
+
+                    camera.position.x = configs['camera']['x'];
+                    camera.position.y = configs['camera']['y'];
+                    camera.position.z = configs['camera']['z'];
+                }
+                else{
+                    camera.position.z = 100; // Move the camera away from the origin, down the positive z-axis.
+                }
 
                 animate();
+            };
+
+            threejs.update_camera = function(camera_position){
+                camera.position.x = camera_position['x'];
+                camera.position.y = camera_position['y'];
+                camera.position.z = camera_position['z'];
             };
 
             threejs.draw_cube = function (x,y,z, width, height, depth, color) {
@@ -91,8 +110,6 @@ angular.module('myApp.view5', ['ngRoute'])
                 init();
 
                 function init() {
-                    camera.position.z = 1000;
-
                     var ambient = new THREE.AmbientLight(0x101030);
                     scene.add(ambient);
 
@@ -178,12 +195,32 @@ angular.module('myApp.view5', ['ngRoute'])
             threejs.init();
             return threejs;
         };
-        var threejs = new ThreeJS();
 
-        $scope.draw_cube = function () {
-            var x = Math.random() * (30 - (-30)) + (-30);
-            var y = Math.random() * (30 - (-30)) + (-30);
-            var z = 0;
+        $scope.configs = {
+            'size': {
+                'width': 1024,
+                'height': 768
+            },
+            'position': {x:0, y:0, z:0},
+            'camera': {x:0, y:0, z:100}
+        }
+
+        var threejs = new ThreeJS($scope.configs);
+
+        $scope.draw_cube = function (position) {
+            position = position || null;
+
+            var x,y,z;
+            if(!position){
+                x = Math.random() * (30 - (-30)) + (-30);
+                y = Math.random() * (30 - (-30)) + (-30);
+                z = 0;
+            }
+            else{
+                x = position.x;
+                y = position.y;
+                z = position.z;
+            }
 
             var rand = Math.random() * (20 - (2)) + (2);
             var width = rand,
@@ -198,5 +235,9 @@ angular.module('myApp.view5', ['ngRoute'])
             //From local webserver
             threejs.load_obj('view5/6_1887.OBJ');
             // threejs.load_obj('view5/ship_triangle.obj');
+        }
+
+        $scope.update_camera = function (camera) {
+            threejs.update_camera(camera)
         }
     }]);

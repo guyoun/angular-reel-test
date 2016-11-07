@@ -1,5 +1,48 @@
-<button ng-click="draw_cube()">draw cube</button>
-<button ng-click="load_obj()">load obj file</button>
-<button ng-click="add_object()">add object</button>
+<div class="col-sm-12">
+    <button type="button" class="btn btn-default" ng-click="load_obj()">load obj file</button>
+</div>
 
-<div id="threejs-canvas"></div>
+<h4>Cube</h4>
+<div class="col-sm-12">
+    <button type="button" class="btn btn-default" ng-click="draw_cube()">add cube randomly</button>
+
+    <form class="form-inline">
+        <div class="form-group">
+            <label>x</label>
+            <input type="number" class="form-control" ng-model="configs.position.x" required>
+        </div>
+        <div class="form-group">
+            <label>y</label>
+            <input type="number" class="form-control" ng-model="configs.position.y" required>
+        </div>
+        <div class="form-group">
+            <label>z</label>
+            <input type="number" class="form-control" ng-model="configs.position.z" required>
+        </div>
+
+        <button type="submit" class="btn btn-default" ng-click="draw_cube(configs.position)">add cube on certion position</button>
+    </form>
+</div>
+
+<h4>Camera</h4>
+<div class="col-sm-12">
+    <form class="form-inline">
+        <div class="form-group">
+            <label>x</label>
+            <input type="number" class="form-control" ng-model="configs.camera.x" required ng-value="0" >
+        </div>
+        <div class="form-group">
+            <label>y</label>
+            <input type="number" class="form-control" ng-model="configs.camera.y" required ng-value="0" >
+        </div>
+        <div class="form-group">
+            <label>z</label>
+            <input type="number" class="form-control" ng-model="configs.camera.z" required ng-value="100" >
+        </div>
+
+        <button type="submit" class="btn btn-default" ng-click="update_camera(configs.camera)">Update camera</button>
+    </form>
+</div>
+
+<h4>Canvas</h4>
+<div class="col-sm-12" id="threejs-canvas"></div>
