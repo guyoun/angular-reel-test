@@ -1,7 +1,7 @@
 <div class="col-sm-12">
     <button type="button" class="btn btn-default" ng-click="load_obj()">load obj file</button>
 </div>
-
+<br/>
 <h4>Cube</h4>
 <div class="col-sm-12">
     <button type="button" class="btn btn-default" ng-click="draw_cube()">add cube randomly</button>
@@ -44,6 +44,8 @@
     </form>
 </div>
 
+<br/>
+
 <h4>Canvas</h4>
 <div class="col-sm-12" id="threejs-canvas"></div>
 
@@ -51,9 +53,34 @@
 <div class="col-sm-12">
     <ul>
         <li ng-repeat="element in elements">
-            <h5>{{element['object']['uuid']}}</h5>
+            <a href="" ng-click="select_element(element)">
+                <h5>{{element['object']['uuid']}}</h5>
 
-            {{element['object']['position']}}
+                {{element['object']['position']}}
+            </a>
         </li>
     </ul>
+</div>
+
+<br/>
+
+<div ng-if="selected != null">
+    <h4>Selected</h4>
+    <div class="col-sm-12">
+        <h5>{{selected['object']['uuid']}}</h5>
+        <form class="form-inline">
+            <div class="form-group">
+                <label>x</label>
+                <input type="number" class="form-control" ng-model="selected['object']['position'].x" required>
+            </div>
+            <div class="form-group">
+                <label>y</label>
+                <input type="number" class="form-control" ng-model="selected['object']['position'].y" required>
+            </div>
+            <div class="form-group">
+                <label>z</label>
+                <input type="number" class="form-control" ng-model="selected['object']['position'].z" required>
+            </div>
+        </form>
+    </div>
 </div>

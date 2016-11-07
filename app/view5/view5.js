@@ -10,7 +10,7 @@ angular.module('myApp.view5', ['ngRoute'])
     .controller('View5Ctrl', ['$scope', '$log', function ($scope, $log) {
         function ThreeJS(configs) {
             var threejs = {};
-            var container, scene, renderer, camera;
+            var container, scene, renderer, camera, controls;
             threejs.elements = {}; //render, object
 
             threejs.add_element = function(key, object, render){
@@ -20,6 +20,16 @@ angular.module('myApp.view5', ['ngRoute'])
                 };
 
                 configs.updata_elements_callback(threejs.elements);
+            }
+
+
+            threejs.get_objects = function() {
+                var objects = [];
+                for(var key in threejs.elements){
+                    objects.push(threejs.elements[key]['object']);
+                }
+
+                return objects;
             }
 
             threejs.get_element = function(key){
@@ -42,7 +52,7 @@ angular.module('myApp.view5', ['ngRoute'])
                 renderer.setSize(width, height); // Set the size of the WebGL viewport.
                 container.appendChild(renderer.domElement); // Append the WebGL viewport to the DOM.
 
-                camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000); // Define the perspective camera's attributes.
+                camera = new THREE.PerspectiveCamera(75, width/height, 0.1, 1000); // Define the perspective camera's attributes.
 
                 if(configs['camera']){
                     $log.debug(configs);
@@ -54,6 +64,19 @@ angular.module('myApp.view5', ['ngRoute'])
                 else{
                     camera.position.z = 100; // Move the camera away from the origin, down the positive z-axis.
                 }
+
+                controls = new THREE.TrackballControls( camera, container);
+                controls.rotateSpeed = 1.0;
+                controls.zoomSpeed = 1.2;
+                controls.panSpeed = 0.8;
+                controls.noZoom = false;
+                controls.noPan = false;
+                controls.staticMoving = true;
+                controls.dynamicDampingFactor = 0.3;
+
+                renderer.domElement.addEventListener( 'mousemove', onDocumentMouseMove, false );
+                renderer.domElement.addEventListener( 'mousedown', onDocumentMouseDown, false );
+                renderer.domElement.addEventListener( 'mouseup', onDocumentMouseUp, false );
 
                 animate();
             };
@@ -90,12 +113,10 @@ angular.module('myApp.view5', ['ngRoute'])
 
                     if(element){
                         var obj = element['object'];
-                        obj.rotation.x += 0.01; // Rotate the sphere by a small amount about the x- and y-axes.
-                        obj.rotation.y += 0.01;
+                        // obj.rotation.x += 0.01; // Rotate the sphere by a small amount about the x- and y-axes.
+                        // obj.rotation.y += 0.01;
                     }
                 };
-
-                $log.debug(cube);
                 threejs.add_element(cube.uuid, cube, render_func);
             };
 
@@ -105,9 +126,6 @@ angular.module('myApp.view5', ['ngRoute'])
             var stats;
 
             var mouseX = 0, mouseY = 0;
-
-            var windowHalfX = window.innerWidth / 2;
-            var windowHalfY = window.innerHeight / 2;
 
             threejs.load_obj = function (file_url) {
                 init();
@@ -130,8 +148,8 @@ angular.module('myApp.view5', ['ngRoute'])
                         var element = threejs.get_element('body');
                         if(element){
                             var obj = element['object'];
-                            obj.rotation.y += (0.2 * (Math.PI / 180));
-                            obj.rotation.y %= 360;
+                            // obj.rotation.y += (0.2 * (Math.PI / 180));
+                            // obj.rotation.y %= 360;
                         }
                     }
 
@@ -154,46 +172,112 @@ angular.module('myApp.view5', ['ngRoute'])
 
                         threejs.add_element('body', object, render_func);
                     });
-
-                    document.addEventListener('mousemove', onDocumentMouseMove, false);
-                    window.addEventListener('resize', onWindowResize, false);
-                }
-
-                function onWindowResize() {
-                    windowHalfX = window.innerWidth / 2;
-                    windowHalfY = window.innerHeight / 2;
-
-                    camera.aspect = window.innerWidth / window.innerHeight;
-                    camera.updateProjectionMatrix();
-
-                    renderer.setSize(window.innerWidth, window.innerHeight);
-                }
-
-                function onDocumentMouseMove(event) {
-                    mouseX = ( event.clientX - windowHalfX ) / 2;
-                    mouseY = ( event.clientY - windowHalfY ) / 2;
                 }
             };
 
-            var j = 0;
             threejs.render = function(){
                 for (var key in threejs.elements) {
                     var element = threejs.get_element(key);
 
                     if (element && typeof(element['render'] == 'function')) {
                         var func = element['render'];
-
                         func(key);
                     }
                 }
                 renderer.render(scene, camera);
-                j++;
+                controls.update();
             };
 
             function animate() {
                 requestAnimationFrame(animate);
                 threejs.render();
             };
+
+            //from https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/webgl_interactive_draggablecubes.html
+            //draggable cube
+            var SELECTED, INTERSECTED, mouse = {};
+            var raycaster = new THREE.Raycaster();
+            var plane = new THREE.Plane();
+            var offset = new THREE.Vector3();
+            var intersection = new THREE.Vector3();
+
+            function onDocumentMouseMove( event ) {
+                event.preventDefault();
+
+                var offsetLeft = container.offsetLeft;
+                var offsetTop = container.offsetTop;
+                mouse.x = ( (event.clientX - offsetLeft) / configs.size.width ) * 2 - 1;
+                mouse.y = - ( (event.clientY - offsetTop) / configs.size.height ) * 2 + 1;
+
+                raycaster.setFromCamera( mouse, camera );
+
+                if ( SELECTED ) {
+                    if ( raycaster.ray.intersectPlane( plane, intersection ) ) {
+
+                        SELECTED.position.copy( intersection.sub( offset ) );
+                    }
+                    return;
+                }
+
+                var objects = threejs.get_objects();
+                var intersects = raycaster.intersectObjects( objects );
+
+                if ( intersects.length > 0 ) {
+                    if ( INTERSECTED != intersects[ 0 ].object ) {
+                        if ( INTERSECTED ) INTERSECTED.material.color.setHex( INTERSECTED.currentHex );
+
+                        INTERSECTED = intersects[ 0 ].object;
+                        INTERSECTED.currentHex = INTERSECTED.material.color.getHex();
+
+                        plane.setFromNormalAndCoplanarPoint(
+                            camera.getWorldDirection( plane.normal ),
+                            INTERSECTED.position );
+                    }
+
+                    container.style.cursor = 'pointer';
+
+                } else {
+                    if ( INTERSECTED ) INTERSECTED.material.color.setHex( INTERSECTED.currentHex );
+                    INTERSECTED = null;
+                    container.style.cursor = 'auto';
+                }
+            }
+
+            function onDocumentMouseDown( event ) {
+                event.preventDefault();
+
+                raycaster.setFromCamera( mouse, camera );
+                var objects = threejs.get_objects();
+                var intersects = raycaster.intersectObjects( objects );
+
+                $log.log(intersects.length);
+                if ( intersects.length > 0 ) {
+
+                    controls.enabled = false;
+
+                    SELECTED = intersects[ 0 ].object;
+
+                    if ( raycaster.ray.intersectPlane( plane, intersection ) ) {
+
+                        offset.copy( intersection ).sub( SELECTED.position );
+                    }
+
+                    container.style.cursor = 'move';
+
+                }
+
+            }
+
+            function onDocumentMouseUp( event ) {
+                event.preventDefault();
+
+                controls.enabled = true;
+                if ( INTERSECTED ) {
+                    SELECTED = null;
+                }
+                container.style.cursor = 'auto';
+
+            }
 
             threejs.init();
             return threejs;
@@ -202,6 +286,7 @@ angular.module('myApp.view5', ['ngRoute'])
 
         var threejs;
         $scope.elements = null;
+        $scope.selected = null;
         var updata_elements_callback = function(elements){
             $scope.elements = elements;
 
@@ -256,5 +341,10 @@ angular.module('myApp.view5', ['ngRoute'])
 
         $scope.update_camera = function (camera) {
             threejs.update_camera(camera)
+        }
+
+        $scope.select_element = function(element){
+            $scope.selected = null;
+            $scope.selected = element;
         }
     }]);
