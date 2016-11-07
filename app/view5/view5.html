@@ -46,3 +46,14 @@
 
 <h4>Canvas</h4>
 <div class="col-sm-12" id="threejs-canvas"></div>
+
+<h4>Elements</h4>
+<div class="col-sm-12">
+    <ul>
+        <li ng-repeat="element in elements">
+            <h5>{{element['object']['uuid']}}</h5>
+
+            {{element['object']['position']}}
+        </li>
+    </ul>
+</div>

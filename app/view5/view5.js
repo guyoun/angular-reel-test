@@ -18,6 +18,8 @@ angular.module('myApp.view5', ['ngRoute'])
                     'object': object,
                     'render': render
                 };
+
+                configs.updata_elements_callback(threejs.elements);
             }
 
             threejs.get_element = function(key){
@@ -93,6 +95,7 @@ angular.module('myApp.view5', ['ngRoute'])
                     }
                 };
 
+                $log.debug(cube);
                 threejs.add_element(cube.uuid, cube, render_func);
             };
 
@@ -196,16 +199,30 @@ angular.module('myApp.view5', ['ngRoute'])
             return threejs;
         };
 
+
+        var threejs;
+        $scope.elements = null;
+        var updata_elements_callback = function(elements){
+            $scope.elements = elements;
+
+            if (!$scope.$$phase)
+                $scope.$apply(); //or simply $scope.$digest();
+        };
+
         $scope.configs = {
             'size': {
                 'width': 1024,
                 'height': 768
             },
             'position': {x:0, y:0, z:0},
-            'camera': {x:0, y:0, z:100}
-        }
+            'camera': {x:0, y:0, z:100},
+            'updata_elements_callback': updata_elements_callback
+        };
 
-        var threejs = new ThreeJS($scope.configs);
+        function init(){
+            threejs = new ThreeJS($scope.configs);
+        };
+        init();
 
         $scope.draw_cube = function (position) {
             position = position || null;
