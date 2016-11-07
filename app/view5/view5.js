@@ -249,8 +249,7 @@ angular.module('myApp.view5', ['ngRoute'])
                 raycaster.setFromCamera( mouse, camera );
                 var objects = threejs.get_objects();
                 var intersects = raycaster.intersectObjects( objects );
-
-                $log.log(intersects.length);
+                
                 if ( intersects.length > 0 ) {
 
                     controls.enabled = false;
