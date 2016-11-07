@@ -1,156 +1,202 @@
 'use strict';
 
 angular.module('myApp.view5', ['ngRoute'])
-.config(['$routeProvider', function($routeProvider) {
-    $routeProvider.when('/view5', {
-        templateUrl: 'view5/view5.html',
-        controller: 'View5Ctrl'
-    });
-}])
-.controller('View5Ctrl', ['$scope', function($scope) {
+    .config(['$routeProvider', function ($routeProvider) {
+        $routeProvider.when('/view5', {
+            templateUrl: 'view5/view5.html',
+            controller: 'View5Ctrl'
+        });
+    }])
+    .controller('View5Ctrl', ['$scope', '$log', function ($scope, $log) {
+        function ThreeJS() {
+            var threejs = {};
+            var container, scene, renderer, camera;
+            threejs.elements = {}; //render, object
 
-     function ThreeJS(){
-        this.draw_cube = function(){
-            var container = document.getElementById( 'threejs-canvas' );
-            var scene = new THREE.Scene(); // Create a Three.js scene object.
-            var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000); // Define the perspective camera's attributes.
+            threejs.add_element = function(key, object, render){
+                threejs.elements[key] = {
+                    'object': object,
+                    'render': render
+                };
+            }
 
-            var renderer = window.WebGLRenderingContext ? new THREE.WebGLRenderer() : new THREE.CanvasRenderer(); // Fallback to canvas renderer, if necessary.
-            renderer.setSize(window.innerWidth, window.innerHeight); // Set the size of the WebGL viewport.
-            container.appendChild(renderer.domElement); // Append the WebGL viewport to the DOM.
+            threejs.get_element = function(key){
+                if(key in threejs.elements)
+                    return threejs.elements[key];
+                else
+                    return null;
+            }
 
-            var geometry = new THREE.CubeGeometry(20, 20, 20); // Create a 20 by 20 by 20 cube.
-            var material = new THREE.MeshBasicMaterial({ color: 0x00FF00 }); // Skin the cube with 100% blue.
-            var cube = new THREE.Mesh(geometry, material); // Create a mesh based on the specified geometry (cube) and material (blue skin).
-            scene.add(cube); // Add the cube at (0, 0, 0).
+            threejs.init = function () {
+                $log.debug('init');
 
-            camera.position.z = 50; // Move the camera away from the origin, down the positive z-axis.
+                container = document.getElementById('threejs-canvas');
+                scene = new THREE.Scene(); // Create a Three.js scene object.
 
-            var render = function () {
-                cube.rotation.x += 0.01; // Rotate the sphere by a small amount about the x- and y-axes.
-                cube.rotation.y += 0.01;
+                renderer = window.WebGLRenderingContext ? new THREE.WebGLRenderer() : new THREE.CanvasRenderer(); // Fallback to canvas renderer, if necessary.
+                renderer.setSize(window.innerWidth, window.innerHeight); // Set the size of the WebGL viewport.
+                container.appendChild(renderer.domElement); // Append the WebGL viewport to the DOM.
 
-                renderer.render(scene, camera); // Each time we change the position of the cube object, we must re-render it.
-                requestAnimationFrame(render); // Call the render() function up to 60 times per second (i.e., up to 60 animation frames per second).
+                camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000); // Define the perspective camera's attributes.
+                camera.position.z = 50; // Move the camera away from the origin, down the positive z-axis.
+
+                animate();
             };
 
-            render(); // Start the rendering of the animation frames.
-        };
+            threejs.draw_cube = function (x,y,z, width, height, depth, color) {
+                x = x || 0;
+                y = y || 0;
+                z = z || 0;
 
-         var clock = new THREE.Clock();
-         var delta = clock.getDelta(); // seconds.
-         var rotateAngle = Math.PI / 2 * delta;   // pi/2 radians (90 degrees) per second
-         var container, stats;
+                width =  width || 20;
+                height =  height || 20;
+                depth = depth || 20;
 
-         var camera, scene, renderer;
+                color = color || 0x00FF00;
 
-         var mouseX = 0, mouseY = 0;
+                var geometry = new THREE.CubeGeometry(width, height, depth); // Create a 20 by 20 by 20 cube.
+                var material = new THREE.MeshBasicMaterial({color: color, opacity: 0.5, transparent: true});
+                var cube = new THREE.Mesh(geometry, material); // Create a mesh based on the specified geometry (cube) and material (blue skin).
 
-         var windowHalfX = window.innerWidth / 2;
-         var windowHalfY = window.innerHeight / 2;
-         var obj = null;
+                cube.position.x = x;
+                cube.position.y = y;
+                cube.position.z = z;
 
-         this.load_obj = function(file_url){
-            init();
-            animate();
+                scene.add(cube); // Add the cube at (0, 0, 0).
 
-            function init() {
-                container = document.createElement( 'threejs-canvas' );
-                document.body.appendChild( container );
+                var render_func = function (key) {
+                    var element = threejs.get_element(key);
 
-                camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 1, 1000 );
-                camera.position.z = 1000;
-
-                // scene
-
-                scene = new THREE.Scene();
-
-                var ambient = new THREE.AmbientLight( 0x101030 );
-                scene.add( ambient );
-
-                var directionalLight = new THREE.DirectionalLight( 0xffeedd );
-                directionalLight.position.set( 0, 0, 1 );
-                scene.add( directionalLight );
-
-                // texture
-
-                var manager = new THREE.LoadingManager();
-                manager.onProgress = function ( item, loaded, total ) {
-                    console.log( item, loaded, total );
+                    if(element){
+                        var obj = element['object'];
+                        obj.rotation.x += 0.01; // Rotate the sphere by a small amount about the x- and y-axes.
+                        obj.rotation.y += 0.01;
+                    }
                 };
 
-                // model
-                var loader = new THREE.OBJLoader( manager );
-                loader.load( file_url, function ( object ) {
-                    object.traverse( function ( child ) {
+                threejs.add_element(cube.uuid, cube, render_func);
+            };
 
-                        if ( child instanceof THREE.Mesh ) {
+            var clock = new THREE.Clock();
+            var delta = clock.getDelta(); // seconds.
+            var rotateAngle = Math.PI / 2 * delta;   // pi/2 radians (90 degrees) per second
+            var stats;
 
-                            //child.material.map = texture;
+            var mouseX = 0, mouseY = 0;
 
+            var windowHalfX = window.innerWidth / 2;
+            var windowHalfY = window.innerHeight / 2;
+
+            threejs.load_obj = function (file_url) {
+                init();
+
+                function init() {
+                    camera.position.z = 1000;
+
+                    var ambient = new THREE.AmbientLight(0x101030);
+                    scene.add(ambient);
+
+                    var directionalLight = new THREE.DirectionalLight(0xffeedd);
+                    directionalLight.position.set(0, 0, 1);
+                    scene.add(directionalLight);
+
+                    // texture
+                    var manager = new THREE.LoadingManager();
+                    manager.onProgress = function (item, loaded, total) {
+                        console.log(item, loaded, total);
+                    };
+
+                    function render_func() {
+                        var element = threejs.get_element('body');
+                        if(element){
+                            var obj = element['object'];
+                            obj.rotation.y += (0.2 * (Math.PI / 180));
+                            obj.rotation.y %= 360;
                         }
-                    } );
+                    }
 
-                    object.position.y = -400;
-                    object.rotation.y = 20* Math.PI / 180;
-                    object.scale.x = 0.05;
-                    object.scale.y = 0.05;
-                    object.scale.z = 0.05;
-                    obj = object
-                    scene.add( obj );
+                    // model
+                    var loader = new THREE.OBJLoader(manager);
+                    loader.load(file_url, function (object) {
+                        object.traverse(function (child) {
 
-                } );
+                            if (child instanceof THREE.Mesh) {
+                                //child.material.map = texture;
+                            }
+                        });
 
-                renderer = new THREE.WebGLRenderer();
-                renderer.setSize( window.innerWidth, window.innerHeight );
-                container.appendChild( renderer.domElement );
+                        object.position.y = -400;
+                        object.rotation.y = 20 * Math.PI / 180;
+                        object.scale.x = 0.05;
+                        object.scale.y = 0.05;
+                        object.scale.z = 0.05;
+                        scene.add(object);
 
-                document.addEventListener( 'mousemove', onDocumentMouseMove, false );
+                        threejs.add_element('body', object, render_func);
+                    });
 
-                window.addEventListener( 'resize', onWindowResize, false );
+                    document.addEventListener('mousemove', onDocumentMouseMove, false);
+                    window.addEventListener('resize', onWindowResize, false);
+                }
 
-            }
+                function onWindowResize() {
+                    windowHalfX = window.innerWidth / 2;
+                    windowHalfY = window.innerHeight / 2;
 
-            function onWindowResize() {
-                windowHalfX = window.innerWidth / 2;
-                windowHalfY = window.innerHeight / 2;
+                    camera.aspect = window.innerWidth / window.innerHeight;
+                    camera.updateProjectionMatrix();
 
-                camera.aspect = window.innerWidth / window.innerHeight;
-                camera.updateProjectionMatrix();
+                    renderer.setSize(window.innerWidth, window.innerHeight);
+                }
 
-                renderer.setSize( window.innerWidth, window.innerHeight );
-            }
+                function onDocumentMouseMove(event) {
+                    mouseX = ( event.clientX - windowHalfX ) / 2;
+                    mouseY = ( event.clientY - windowHalfY ) / 2;
+                }
+            };
 
-            function onDocumentMouseMove( event ) {
-                mouseX = ( event.clientX - windowHalfX ) / 2;
-                mouseY = ( event.clientY - windowHalfY ) / 2;
-            }
+            var j = 0;
+            threejs.render = function(){
+                for (var key in threejs.elements) {
+                    var element = threejs.get_element(key);
+
+                    if (element && typeof(element['render'] == 'function')) {
+                        var func = element['render'];
+
+                        func(key);
+                    }
+                }
+                renderer.render(scene, camera);
+                j++;
+            };
 
             function animate() {
-                requestAnimationFrame( animate );
-                render();
-            }
+                requestAnimationFrame(animate);
+                threejs.render();
+            };
 
-            function render() {
-                obj.rotation.y += (0.2*(Math.PI / 180));
-                obj.rotation.y %=360;
-                renderer.render( scene, camera );
-            }
+            threejs.init();
+            return threejs;
+        };
+        var threejs = new ThreeJS();
+
+        $scope.draw_cube = function () {
+            var x = Math.random() * (30 - (-30)) + (-30);
+            var y = Math.random() * (30 - (-30)) + (-30);
+            var z = 0;
+
+            var rand = Math.random() * (20 - (2)) + (2);
+            var width = rand,
+            height = rand,
+            depth = rand;
+
+            var color = Math.random() * 0xFFFFFF;
+            threejs.draw_cube(x, y, z, width, height, depth, color);
+        };
+
+        $scope.load_obj = function () {
+            //From local webserver
+            threejs.load_obj('view5/6_1887.OBJ');
+            // threejs.load_obj('view5/ship_triangle.obj');
         }
-    };
-    var threejs = null;
-
-    $scope.draw_cube = function(){
-        threejs = new ThreeJS();
-        threejs.draw_cube();
-    };
-
-    $scope.load_obj = function(){
-
-        threejs = new ThreeJS();
-
-        //From local webserver
-        threejs.load_obj('view5/6_1887.OBJ');
-        // threejs.load_obj('view5/ship_triangle.obj');
-    }
-}]);
+    }]);
