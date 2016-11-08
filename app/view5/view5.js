@@ -48,11 +48,12 @@ angular.module('myApp.view5', ['ngRoute'])
                 container = document.getElementById('threejs-canvas');
                 scene = new THREE.Scene(); // Create a Three.js scene object.
 
+                camera = new THREE.PerspectiveCamera(75, width/height, 0.1, 1000); // Define the perspective camera's attributes.
+
                 renderer = window.WebGLRenderingContext ? new THREE.WebGLRenderer() : new THREE.CanvasRenderer(); // Fallback to canvas renderer, if necessary.
                 renderer.setSize(width, height); // Set the size of the WebGL viewport.
                 container.appendChild(renderer.domElement); // Append the WebGL viewport to the DOM.
 
-                camera = new THREE.PerspectiveCamera(75, width/height, 0.1, 1000); // Define the perspective camera's attributes.
 
                 if(configs['camera']){
                     $log.debug(configs);
