@@ -113,8 +113,8 @@ angular.module('myApp.view5', ['ngRoute'])
 
                     if(element){
                         var obj = element['object'];
-                        // obj.rotation.x += 0.01; // Rotate the sphere by a small amount about the x- and y-axes.
-                        // obj.rotation.y += 0.01;
+                        obj.rotation.x += 0.01; // Rotate the sphere by a small amount about the x- and y-axes.
+                        obj.rotation.y += 0.01;
                     }
                 };
                 threejs.add_element(cube.uuid, cube, render_func);
@@ -275,7 +275,6 @@ angular.module('myApp.view5', ['ngRoute'])
                     SELECTED = null;
                 }
                 container.style.cursor = 'auto';
-
             }
 
             threejs.init();
@@ -345,5 +344,16 @@ angular.module('myApp.view5', ['ngRoute'])
         $scope.select_element = function(element){
             $scope.selected = null;
             $scope.selected = element;
+        }
+
+        $scope.move_element = function(axis, sign){
+            var element = $scope.selected;
+
+            if(sign == '+'){
+                element['object'].position[axis] = element['object'].position[axis] + 1;
+            }
+            else{
+                element['object'].position[axis] = element['object'].position[axis] - 1;
+            }
         }
     }]);
