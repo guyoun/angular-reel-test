@@ -10,7 +10,9 @@ angular.module('myApp', [
   'myApp.view5',
   'myApp.view6',
   'angular-images-loaded', //for view2
-  'myApp.version'
+  'myApp.version',
+
+  'ngPapaParse' //for view5
 ])
 
 .config(['$routeProvider', function($routeProvider) {
