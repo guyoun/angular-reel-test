@@ -1,5 +1,13 @@
 <div class="col-sm-12">
+    <select ng-model="file_obj_id">
+        <option value="6_4860">6_4860.OBJ</option>
+        <option value="6_5012">6_5012.OBJ</option>
+        <option value="5_5036" selected>5_5036.OBJ</option>
+    </select>
     <button type="button" class="btn btn-default" ng-click="load_obj()">load obj file</button>
+</div>
+<div class="col-sm-12">
+    <input class="form-control" type="file" name="read_csv" accept=".csv" onchange="angular.element(this).scope().read_landmarks(this.files, this);" required="true">
 </div>
 <br/>
 <h4>Cube</h4>
@@ -48,7 +56,7 @@
 
 <h4>Canvas</h4>
 <div>
-    <div id="threejs-canvas" style="width:1024px;"></div>
+    <div id="threejs-canvas" style="width:475px;"></div>
 </div>
 
 <h4>Elements</h4>

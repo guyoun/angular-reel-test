@@ -7,25 +7,34 @@ angular.module('myApp.view5', ['ngRoute'])
             controller: 'View5Ctrl'
         });
     }])
-    .controller('View5Ctrl', ['$scope', '$log', function ($scope, $log) {
+    .controller('View5Ctrl', ['$scope', '$log', 'Papa', function ($scope, $log) {
         function ThreeJS(configs) {
             var threejs = {};
-            var container, scene, renderer, camera, controls;
+            var container, scene, scene_container, renderer, camera, controls;
+            var axis_translated = false;
             threejs.elements = {}; //render, object
 
-            threejs.add_element = function(key, object, render){
+            threejs.add_element = function(key, object, render, custom_data){
+                custom_data = custom_data || null;
+
                 threejs.elements[key] = {
                     'object': object,
-                    'render': render
+                    'render': render,
+                    'custom_data': custom_data
                 };
 
-                configs.updata_elements_callback(threejs.elements);
+                configs.update_elements_callback(threejs.elements);
             }
 
 
-            threejs.get_objects = function() {
+            threejs.get_objects = function(excludes) {
+                excludes = excludes || [];
+
                 var objects = [];
                 for(var key in threejs.elements){
+                    if(excludes.length > 0 && excludes.indexOf(key) != -1)
+                        continue;
+
                     objects.push(threejs.elements[key]['object']);
                 }
 
@@ -39,6 +48,24 @@ angular.module('myApp.view5', ['ngRoute'])
                     return null;
             }
 
+            threejs.remove_all = function(excludes){
+                var objects = threejs.get_objects(excludes);
+                for(var i=0; i < objects.length; i++)
+                {
+                    var object = objects[i];
+                    scene_container.remove(object);
+                }
+
+                for(var key in threejs.elements){
+                    if(excludes.length > 0 && excludes.indexOf(key) != -1)
+                        continue;
+
+                    delete threejs.elements[key];
+                }
+
+                configs.update_elements_callback(threejs.elements);
+            }
+
             threejs.init = function () {
                 $log.debug('init');
 
@@ -47,8 +74,10 @@ angular.module('myApp.view5', ['ngRoute'])
 
                 container = document.getElementById('threejs-canvas');
                 scene = new THREE.Scene(); // Create a Three.js scene object.
+                scene_container = new THREE.Object3D();
+                scene.add( scene_container );
 
-                camera = new THREE.PerspectiveCamera(75, width/height, 0.1, 1000); // Define the perspective camera's attributes.
+                camera = new THREE.PerspectiveCamera(75, width/height, 1, 5000); // Define the perspective camera's attributes.
 
                 renderer = window.WebGLRenderingContext ? new THREE.WebGLRenderer() : new THREE.CanvasRenderer(); // Fallback to canvas renderer, if necessary.
                 renderer.setSize(width, height); // Set the size of the WebGL viewport.
@@ -79,16 +108,22 @@ angular.module('myApp.view5', ['ngRoute'])
                 renderer.domElement.addEventListener( 'mousedown', onDocumentMouseDown, false );
                 renderer.domElement.addEventListener( 'mouseup', onDocumentMouseUp, false );
 
+                var axisHelper = new THREE.AxisHelper( 5 );
+                scene_container.add( axisHelper );
+
                 animate();
             };
 
             threejs.update_camera = function(camera_position){
-                camera.position.x = camera_position['x'];
-                camera.position.y = camera_position['y'];
-                camera.position.z = camera_position['z'];
+                camera.position.set(camera_position['x'],camera_position['y'],camera_position['z']);
+                camera.updateProjectionMatrix();
             };
 
-            threejs.draw_cube = function (x,y,z, width, height, depth, color) {
+            threejs.reset_trackballcontrols = function(){
+                controls.reset();
+            }
+
+            threejs.draw_cube = function (x,y,z, width, height, depth, color, custom_data) {
                 x = x || 0;
                 y = y || 0;
                 z = z || 0;
@@ -98,27 +133,33 @@ angular.module('myApp.view5', ['ngRoute'])
                 depth = depth || 20;
 
                 color = color || 0x00FF00;
+                custom_data = custom_data || null;
 
                 var geometry = new THREE.CubeGeometry(width, height, depth); // Create a 20 by 20 by 20 cube.
-                var material = new THREE.MeshBasicMaterial({color: color, opacity: 0.5, transparent: true});
+                //var material = new THREE.MeshBasicMaterial({color: color, opacity: 0.5, transparent: true});
+                var material = new THREE.MeshBasicMaterial({color: color});
                 var cube = new THREE.Mesh(geometry, material); // Create a mesh based on the specified geometry (cube) and material (blue skin).
 
                 cube.position.x = x;
                 cube.position.y = y;
                 cube.position.z = z;
 
-                scene.add(cube); // Add the cube at (0, 0, 0).
+                cube.rotation.x = -90 * Math.PI / 180;
+                // object.rotation.y = 0 * Math.PI / 180;
+                cube.rotation.z = 180 * Math.PI / 180;
+
+                scene_container.add(cube); // Add the cube at (0, 0, 0).
 
                 var render_func = function (key) {
                     var element = threejs.get_element(key);
 
                     if(element){
                         var obj = element['object'];
-                        obj.rotation.x += 0.01; // Rotate the sphere by a small amount about the x- and y-axes.
-                        obj.rotation.y += 0.01;
+                        // obj.rotation.x += 0.01; // Rotate the sphere by a small amount about the x- and y-axes.
+                        // obj.rotation.y += 0.01;
                     }
                 };
-                threejs.add_element(cube.uuid, cube, render_func);
+                threejs.add_element(cube.uuid, cube, render_func, custom_data);
             };
 
             var clock = new THREE.Clock();
@@ -128,7 +169,10 @@ angular.module('myApp.view5', ['ngRoute'])
 
             var mouseX = 0, mouseY = 0;
 
-            threejs.load_obj = function (file_url) {
+            threejs.load_obj = function (file_url, onload_callback, rotation) {
+                onload_callback = onload_callback || function(){};
+                rotation = rotation || false;
+
                 init();
 
                 function init() {
@@ -141,8 +185,14 @@ angular.module('myApp.view5', ['ngRoute'])
 
                     // texture
                     var manager = new THREE.LoadingManager();
-                    manager.onProgress = function (item, loaded, total) {
+                    manager.onLoad = function (item, loaded, total) {
                         console.log(item, loaded, total);
+                        alert('로드되었습니다.');
+                        onload_callback();
+                    };
+
+                    manager.onProgress = function (item, loaded, total) {
+                        console.log("onProgress: " + loaded + "/" + total);
                     };
 
                     function render_func() {
@@ -164,12 +214,22 @@ angular.module('myApp.view5', ['ngRoute'])
                             }
                         });
 
-                        object.position.y = -400;
-                        object.rotation.y = 20 * Math.PI / 180;
-                        object.scale.x = 0.05;
-                        object.scale.y = 0.05;
-                        object.scale.z = 0.05;
-                        scene.add(object);
+                        // Todo: 오브젝트에 따로 업데이트 필요
+                        object.position.x = 0;
+                        object.position.y = 0;
+                        object.position.z = 0;
+
+                        // object.scale.x = 0.05;
+                        // object.scale.y = 0.05;
+                        // object.scale.z = 0.05;
+
+                        if(rotation){
+                            object.rotation.x = -90 * Math.PI / 180;
+                            // object.rotation.y = 0 * Math.PI / 180;
+                            object.rotation.z = 180 * Math.PI / 180;
+                        }
+
+                        scene_container.add(object);
 
                         threejs.add_element('body', object, render_func);
                     });
@@ -177,6 +237,10 @@ angular.module('myApp.view5', ['ngRoute'])
             };
 
             threejs.render = function(){
+                if(!axis_translated){
+                    scene_container.translateOnAxis(new THREE.Vector3(0,1,0),-500);
+                    axis_translated = true;
+                }
                 for (var key in threejs.elements) {
                     var element = threejs.get_element(key);
 
@@ -286,7 +350,7 @@ angular.module('myApp.view5', ['ngRoute'])
         var threejs;
         $scope.elements = null;
         $scope.selected = null;
-        var updata_elements_callback = function(elements){
+        var update_elements_callback = function(elements){
             $scope.elements = elements;
 
             if (!$scope.$$phase)
@@ -295,12 +359,12 @@ angular.module('myApp.view5', ['ngRoute'])
 
         $scope.configs = {
             'size': {
-                'width': 1024,
-                'height': 768
+                'width': 475,
+                'height': 900
             },
             'position': {x:0, y:0, z:0},
-            'camera': {x:0, y:0, z:100},
-            'updata_elements_callback': updata_elements_callback
+            'camera': {x:0, y:0, z:2000},
+            'update_elements_callback': update_elements_callback
         };
 
         function init(){
@@ -308,8 +372,14 @@ angular.module('myApp.view5', ['ngRoute'])
         };
         init();
 
-        $scope.draw_cube = function (position) {
+        $scope.remove_all = function(excludes){
+            threejs.remove_all(excludes);
+        }
+
+        $scope.draw_cube = function (position, dimension, custom_data, color) {
             position = position || null;
+            dimension = dimension || dimension;
+            color = color || Math.random() * 0xFFFFFF;
 
             var x,y,z;
             if(!position){
@@ -325,16 +395,28 @@ angular.module('myApp.view5', ['ngRoute'])
 
             var rand = Math.random() * (20 - (2)) + (2);
             var width = rand,
-            height = rand,
-            depth = rand;
+                height = rand,
+                depth = rand;
 
-            var color = Math.random() * 0xFFFFFF;
-            threejs.draw_cube(x, y, z, width, height, depth, color);
+            if(dimension)
+            {
+                width = dimension.width;
+                height = dimension.height;
+                depth = dimension.depth;
+            }
+
+            threejs.draw_cube(x, y, z, width, height, depth, color, custom_data);
         };
 
+
         $scope.load_obj = function () {
+            var file_obj_id = $scope.file_obj_id;
+            var file_obj_path = $scope.body_model_data[file_obj_id]['obj'];
+            var to_rotation = $scope.body_model_data[file_obj_id]['rotation'];
+
             //From local webserver
-            threejs.load_obj('view5/6_1887.OBJ');
+             threejs.load_obj(file_obj_path, null, to_rotation);
+
             // threejs.load_obj('view5/ship_triangle.obj');
         }
 
@@ -357,4 +439,55 @@ angular.module('myApp.view5', ['ngRoute'])
                 element['object'].position[axis] = element['object'].position[axis] - 1;
             }
         }
+
+        $scope.landmarks = null;
+        var draw_landmarks = function(landmarks){
+            var excludes = ['body'];
+            var color = 0x8fff45;
+            $scope.remove_all(excludes);
+
+            var dimension = {
+                "width": 20,
+                "height": 20,
+                "depth": 20
+            };
+            for(var i=0; i<landmarks.length; i++){
+                var landmark = landmarks[i];
+                var position = {
+                    'x': landmark[2],
+                    'y': landmark[3],
+                    'z': landmark[4]
+                };
+                $scope.draw_cube(position, dimension, landmark, color);
+            }
+        }
+
+        $scope.read_landmarks = function(file){
+            var file_obj_id = $scope.file_obj_id;
+
+            var data = Papa.parse(file[0], {
+                    complete: function(results) {
+                        console.log("Finished:", results.data);
+
+                        draw_landmarks(results.data);
+                    }
+                }
+            );
+        }
+
+        $scope.body_model_data = {
+            '5_5036':{
+                'obj': 'view5/5_5036.OBJ',
+                'rotation': false
+            },
+            '6_4860': {
+                'obj': 'view5/6_4860.OBJ',
+                'rotation': true
+            },
+            '6_5012': {
+                'obj': 'view5/6_5012.OBJ',
+                'rotation': true
+            }
+        }
+
     }]);
