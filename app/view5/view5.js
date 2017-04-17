@@ -176,12 +176,18 @@ angular.module('myApp.view5', ['ngRoute'])
                 init();
 
                 function init() {
-                    var ambient = new THREE.AmbientLight(0x101030);
-                    scene.add(ambient);
+                    // var ambient = new THREE.AmbientLight(0x101030);
+                    // scene.add(ambient);
 
-                    var directionalLight = new THREE.DirectionalLight(0xffeedd);
-                    directionalLight.position.set(0, 0, 1);
-                    scene.add(directionalLight);
+                    var directionalLight_front = new THREE.DirectionalLight(0xffffff);
+                    directionalLight_front.position.set(0, 0, 1);
+                    scene.add(directionalLight_front);
+
+
+                    var directionalLight_back = new THREE.DirectionalLight(0xffffff);
+                    directionalLight_back.position.set(0, 0, -1);
+                    scene.add(directionalLight_back);
+
 
                     // texture
                     var manager = new THREE.LoadingManager();
