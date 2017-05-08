@@ -111,6 +111,7 @@ angular.module('myApp.view5', ['ngRoute'])
                 var axisHelper = new THREE.AxisHelper( 5 );
                 scene_container.add( axisHelper );
 
+                draw_floor_texture();
                 animate();
             };
 
@@ -183,11 +184,9 @@ angular.module('myApp.view5', ['ngRoute'])
                     directionalLight_front.position.set(0, 0, 1);
                     scene.add(directionalLight_front);
 
-
                     var directionalLight_back = new THREE.DirectionalLight(0xffffff);
                     directionalLight_back.position.set(0, 0, -1);
                     scene.add(directionalLight_back);
-
 
                     // texture
                     var manager = new THREE.LoadingManager();
@@ -236,8 +235,9 @@ angular.module('myApp.view5', ['ngRoute'])
                         }
 
                         scene_container.add(object);
-
                         threejs.add_element('body', object, render_func);
+
+                        draw_floor_texture();
                     });
                 }
             };
@@ -250,7 +250,7 @@ angular.module('myApp.view5', ['ngRoute'])
                 for (var key in threejs.elements) {
                     var element = threejs.get_element(key);
 
-                    if (element && typeof(element['render'] == 'function')) {
+                    if (element && typeof(element['render']) == 'function') {
                         var func = element['render'];
                         func(key);
                     }
@@ -263,6 +263,30 @@ angular.module('myApp.view5', ['ngRoute'])
                 requestAnimationFrame(animate);
                 threejs.render();
             };
+
+            //floor cube matrix
+            function draw_floor_texture(){
+                var element = threejs.get_element('body');
+                if(element){
+                    var obj = element['object'];
+                    var box = new THREE.Box3().setFromObject(obj);
+
+                    var floorTexture = new THREE.ImageUtils.loadTexture( 'view5/checkerboard.jpg' );
+                    floorTexture.wrapS = floorTexture.wrapT = THREE.RepeatWrapping;
+                    floorTexture.repeat.set( 10, 10 );
+                    // DoubleSide: render texture on both sides of mesh
+                    var floorMaterial = new THREE.MeshBasicMaterial( { map: floorTexture, side: THREE.DoubleSide } );
+                    var floorGeometry = new THREE.PlaneGeometry(3000, 3000, 1, 1);
+                    var floor = new THREE.Mesh(floorGeometry, floorMaterial);
+
+                    floor.position.y = box.min.y;
+                    floor.rotation.x = Math.PI / 2;
+
+                    scene.add(floor);
+
+                    threejs.add_element('floor', floor, null);
+                }
+            }
 
             //from https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/webgl_interactive_draggablecubes.html
             //draggable cube
