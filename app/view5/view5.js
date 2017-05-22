@@ -163,6 +163,42 @@ angular.module('myApp.view5', ['ngRoute'])
                 threejs.add_element(cube.uuid, cube, render_func, custom_data);
             };
 
+            threejs.draw_sphere = function (x,y,z, radius, color, custom_data) {
+                x = x || 0;
+                y = y || 0;
+                z = z || 0;
+
+                radius = radius || 5;
+
+                color = color || 0x00FF00;
+                custom_data = custom_data || null;
+
+                var geometry = new THREE.SphereGeometry(radius); // Create a 20 by 20 by 20 cube.
+                var material = new THREE.MeshBasicMaterial({color: color});
+                var mesh = new THREE.Mesh(geometry, material); // Create a mesh based on the specified geometry (cube) and material (blue skin).
+
+                mesh.position.x = x;
+                mesh.position.y = y;
+                mesh.position.z = z;
+
+                mesh.rotation.x = -90 * Math.PI / 180;
+                // object.rotation.y = 0 * Math.PI / 180;
+                mesh.rotation.z = 180 * Math.PI / 180;
+
+                scene_container.add(mesh); // Add the cube at (0, 0, 0).
+
+                var render_func = function (key) {
+                    var element = threejs.get_element(key);
+
+                    if(element){
+                        var obj = element['object'];
+                        // obj.rotation.x += 0.01; // Rotate the sphere by a small amount about the x- and y-axes.
+                        // obj.rotation.y += 0.01;
+                    }
+                };
+                threejs.add_element(mesh.uuid, mesh, render_func, custom_data);
+            };
+
             var clock = new THREE.Clock();
             var delta = clock.getDelta(); // seconds.
             var rotateAngle = Math.PI / 2 * delta;   // pi/2 radians (90 degrees) per second
@@ -438,6 +474,25 @@ angular.module('myApp.view5', ['ngRoute'])
             threejs.draw_cube(x, y, z, width, height, depth, color, custom_data);
         };
 
+        $scope.draw_sphere = function (position, radius, custom_data, color) {
+            position = position || null;
+            radius = radius || 5;
+            color = color || Math.random() * 0xFFFFFF;
+
+            var x,y,z;
+            if(!position){
+                x = Math.random() * (30 - (-30)) + (-30);
+                y = Math.random() * (30 - (-30)) + (-30);
+                z = 0;
+            }
+            else{
+                x = position.x;
+                y = position.y;
+                z = position.z;
+            }
+
+            threejs.draw_sphere(x, y, z, radius, color, custom_data);
+        };
 
         $scope.load_obj = function () {
             var file_obj_id = $scope.file_obj_id;
