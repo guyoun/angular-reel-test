@@ -199,6 +199,60 @@ angular.module('myApp.view5', ['ngRoute'])
                 threejs.add_element(mesh.uuid, mesh, render_func, custom_data);
             };
 
+            threejs.draw_line = function (start, end, color, custom_data, key_name) {
+                color = color || 0x00FF00;
+                custom_data = custom_data || null;
+
+                var geometry = new THREE.Geometry();
+                geometry.vertices.push(
+                    new THREE.Vector3(start.x, start.y, start.z),
+                    new THREE.Vector3(end.x, end.y, end.z)
+                );
+                var material = new THREE.LineBasicMaterial({color: color, linewidth: 2});
+                var line = new THREE.Line( geometry, material );
+
+                scene_container.add(line); // Add the cube at (0, 0, 0).
+
+                var render_func = function (key) {
+                    var element = threejs.get_element(key);
+
+                    if(element){
+                        var obj = element['object'];
+                    }
+                };
+                key_name = key_name || line.uuid;
+                threejs.add_element(key_name, line, render_func, custom_data);
+            };
+
+            threejs.draw_line_loop = function (points, color, custom_data, key_name) {
+                color = color || 0xFF0000;
+                custom_data = custom_data || null;
+
+                var geometry = new THREE.Geometry();
+
+                for(var i=0; i<points.length; i++){
+                    var point = points[i];
+
+                    geometry.vertices.push(
+                        new THREE.Vector3(point.x, point.y, point.z)
+                    );
+                }
+                var material = new THREE.LineBasicMaterial({color: color, linewidth: 3});
+                var line = new THREE.LineLoop( geometry, material );
+
+                scene_container.add(line); // Add the cube at (0, 0, 0).
+
+                var render_func = function (key) {
+                    var element = threejs.get_element(key);
+
+                    if(element){
+                        var obj = element['object'];
+                    }
+                };
+                key_name = key_name || line.uuid;
+                threejs.add_element(key_name, line, render_func, custom_data);
+            };
+
             var clock = new THREE.Clock();
             var delta = clock.getDelta(); // seconds.
             var rotateAngle = Math.PI / 2 * delta;   // pi/2 radians (90 degrees) per second
@@ -492,6 +546,60 @@ angular.module('myApp.view5', ['ngRoute'])
             }
 
             threejs.draw_sphere(x, y, z, radius, color, custom_data);
+        };
+
+        $scope.draw_line_loop = function () {
+            var points = [
+                {x: -170.663086,y: 1304.509766,z: 35.244965},
+                {x: -170.969147,y: 1305.937378,z: 34.59201},
+                {x: -171.652466,y: 1309.017822,z: 33.022148},
+                {x: -172.371307,y: 1312.170288,z: 31.27866},
+                {x: -172.972382,y: 1314.735962,z: 29.746868},
+                {x: -173.819183,y: 1318.188843,z: 27.419819},
+                {x: -173.819214,y: 1318.188843,z: 27.419811},
+                {x: -174.70108,y: 1321.803467,z: 25.015713},
+                {x: -174.701111,y: 1321.803467,z: 25.015678},
+                {x: -175.774261,y: 1326.454834,z: 22.354885},
+                {x: -176.317047,y: 1328.607056,z: 20.799202},
+                {x: -176.317078,y: 1328.607056,z: 20.799194},
+                {x: -177.505249,y: 1332.322754,z: 16.351418},
+                {x: -177.505249,y: 1332.322754,z: 16.351414},
+                {x: -177.884644,y: 1333.291016,z: 14.702618},
+                {x: -178.656281,y: 1335.416382,z: 11.512684},
+                {x: -179.234924,y: 1336.88916, z: 8.993832},
+                {x: -179.235016,y: 1336.88916,z: 8.993748},
+                {x: -179.986572,y: 1339.07251,z: 6.005169},
+                {x: -179.986603,y: 1339.07251,z: 6.005157},
+                {x: -180.954773,y: 1341.061157,z: 1.292793},
+                {x: -181.247742,y: 1341.54126,z: -0.260477},
+                {x: -181.247681,y: 1341.54126,z: -0.260479},
+                {x: -181.57782,y: 1341.925781,z: -2.174557},
+                {x: -182.716583,y: 1343.593994,z: -8.419846},
+                {x: -183.366974,y: 1344.215332,z: -12.3335},
+                {x: -184.157684,y: 1345.232422,z: -16.817839},
+                {x: -185.363251,y: 1346.583862,z: -23.863535},
+                {x: -185.600586,y: 1346.937622,z: -25.158556},
+                {x: -185.600555,y: 1346.937622,z: -25.158562},
+                {x: -186.271179,y: 1347.566528,z: -29.206417},
+                {x: -186.659821,y: 1347.858765,z: -31.628014},
+                {x: -187.159058,y: 1347.849121,z: -35.141777},
+                {x: -187.159058,y: 1347.849121,z: -35.141804},
+                {x: -187.472046,y: 1347.743164,z: -37.449009},
+                {x: -187.472015,y: 1347.743164,z: -37.449017},
+                {x: -187.555389,y: 1347.608521,z: -38.175289},
+                {x: -188.207703,y: 1346.300537,z: -44.123177},
+                {x: -188.207733,y: 1346.300415,z: -44.123169},
+                {x: -188.536682,y: 1344.419678,z: -48.401592},
+                {x: -188.652283,y: 1343.742188,z: -49.922089},
+                {x: -188.898712,y: 1341.046997,z: -54.47398},
+                {x: -188.934113,y: 1340.642578,z: -55.14603},
+                {x: -188.934113,y: 1340.642456,z: -55.146027},
+                {x: -188.989136,y: 1339.634888,z: -56.58746},
+                {x: -189.031219,y: 1338.391602,z: -58.184639},
+                {x: -189.138489,y: 1334.605225,z: -62.902706},
+                {x: -189.138489,y: 1334.605103,z: -62.902699}
+            ];
+            threejs.draw_line_loop(points);
         };
 
         $scope.load_obj = function () {
